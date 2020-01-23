@@ -1,0 +1,66 @@
+import numpy as np
+import matplotlib.pyplot as plt
+def mk(n):
+    return np.random.choice([255,0], size=n**2, p=[0.4,0.6]).reshape(n,n)
+def addGlider(i, j, grid):
+    glider = np.array([[0, 0, 255], [255, 0, 255], [0, 255, 255]])
+    grid[i:i+3, j:j+3] = glider
+def addBochenek(i,j,grid):
+    loaf = np.array([[0,255,255,0],[255,0,0,255],[0,255,0,255],
+                      [0,0,255,0]])
+    grid[i:i+4, j:j+4] = loaf
+def addCegla(i,j,grid):
+    block = np.array([[255,255],[255,255]])
+    grid[i:i+2, j:j+2]=block
+def doa(i,j,macierz):
+    def komorka(i, j):
+        return 0 <= i < len(macierz) and 0 <= j < len(macierz) and macierz[i][j]
+
+    sasiedzi = 0
+
+    if komorka(i-1, j-1) != 0:
+        sasiedzi += 1
+    if komorka(i-1, j) != 0:
+        sasiedzi += 1
+    if komorka(i-1, j+1) != 0:
+        sasiedzi += 1
+    if komorka(i, j-1) != 0:
+        sasiedzi += 1
+    if komorka(i, j+1) != 0:
+        sasiedzi += 1
+    if komorka(i+1, j-1) != 0:
+        sasiedzi += 1
+    if komorka(i+1, j) != 0:
+        sasiedzi += 1
+    if komorka(i+1, j+1) != 0:
+        sasiedzi += 1
+
+    return sasiedzi
+def got(c):
+    N=c.shape[0]  #Uzyskujemy stopien macierzy przez jej jeden wymiar
+    m_new=np.zeros(N*N).reshape(N,N) #Tworzymy macierz NxN z samymi zerami
+    for i in range (1,N-1):
+        for j in range(1,N-1):
+            suma=doa(i,j,c)
+            if c[i,j]==255:
+                if suma>=4 or suma<1:
+                    m_new[i,j]=0
+                else:
+                    m_new[i,j]=c[i,j]
+            elif c[i,j]==0:
+                if suma==3:
+                    m_new[i,j]=255
+            else:
+                m_new[i,j]=c[i,j]
+    return m_new
+def grawzycie(b):
+    a=int(input("Wprowadz stopien planszy: "))
+    c=mk(a) #Tutaj zostaje stworzona macierz pierwotna
+    print(c)
+    for i in range (b):#Stworzenie planszy "zycia" zostaje powtorzone ustalona wczesniej ilosc razy
+        print (c)
+        c=got(c)
+        plt.figure()
+        plt.grid()
+        plt.imshow(c, cmap = 'Greys')
+        plt.savefig("foto_{0}".format(i))
